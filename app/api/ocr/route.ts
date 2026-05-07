@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+export const maxDuration = 60
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import Anthropic from '@anthropic-ai/sdk'
