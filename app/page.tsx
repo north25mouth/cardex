@@ -364,12 +364,6 @@ export default function Page() {
       </header>
 
       <div className={styles.shell}>
-        {/* Page title */}
-        <div className={styles.pageTitle}>
-          <h2 className={styles.pageTitleH}>名刺を撮る。それだけでいい。</h2>
-          <p className={styles.pageTitleSub}>スキャン → Sheets保存 → Gmailお礼メール下書き、ワンタップで完結</p>
-        </div>
-
         {/* Config */}
         <div className={styles.config}>
           <button className={styles.configToggle} onClick={() => setConfigOpen(o => !o)}>
