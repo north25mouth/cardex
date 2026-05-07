@@ -577,7 +577,7 @@ export default function Page() {
                 スプレッドシートも同じアカウントからアクセスできるものを指定してください。
               </div>
               <div className={styles.btnRow}>
-                <button className={styles.btnPrimary} onClick={saveAll} disabled={saveLoading}>
+                <button className={styles.btnPrimary} onClick={() => saveAll()} disabled={saveLoading}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
                   {saveLoading ? '処理中...' : '実行する — 保存 & 下書き作成'}
                 </button>
