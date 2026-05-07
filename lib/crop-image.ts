@@ -41,23 +41,31 @@ export async function getCroppedImgAsJpeg(
   return { dataUrl, base64 }
 }
 
-/** 切り取りなしで全体を JPEG（base64）にする */
+/** 切り取りなしで全体を JPEG（base64）にする。長辺を MAX_PX 以内にリサイズ */
+const MAX_PX = 1600
+
 export async function getFullImageAsJpeg(
   imageSrc: string,
-  quality = 0.92
+  quality = 0.82
 ): Promise<{ dataUrl: string; base64: string }> {
   const image = await loadImage(imageSrc)
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Canvas が使えません')
 
-  const w = image.naturalWidth
-  const h = image.naturalHeight
+  let w = image.naturalWidth
+  let h = image.naturalHeight
   if (!w || !h) throw new Error('画像のサイズを取得できません')
+
+  if (Math.max(w, h) > MAX_PX) {
+    const scale = MAX_PX / Math.max(w, h)
+    w = Math.round(w * scale)
+    h = Math.round(h * scale)
+  }
 
   canvas.width = w
   canvas.height = h
-  ctx.drawImage(image, 0, 0)
+  ctx.drawImage(image, 0, 0, w, h)
 
   const dataUrl = canvas.toDataURL('image/jpeg', quality)
   const base64 = dataUrl.split(',')[1]
