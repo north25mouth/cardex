@@ -1,0 +1,26 @@
+:root {
+  --ink:       #0a0a0a;
+  --ink2:      #3a3a3a;
+  --ink3:      #888;
+  --paper:     #f5f4f0;
+  --white:     #ffffff;
+  --rule:      rgba(0,0,0,0.1);
+  --rule2:     rgba(0,0,0,0.05);
+  --green:     #1a6644;
+  --green-bg:  #eef5f1;
+  --red:       #8b2020;
+  --red-bg:    #fdf0f0;
+  --amber:     #7a4800;
+  --amber-bg:  #fdf5e6;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardex — デプロイ手順</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:    #0a0a0a;
+  --ink2:   #3a3a3a;
+  --ink3:   #888;
+  --ink4:   #bbb;
+  --paper:  #f5f4f0;
+  --white:  #ffffff;
+  --rule:   rgba(0,0,0,0.08);
+  --green:  #1a6644;
+  --green-bg: #eef5f1;
+  --amber:  #92550f;
+  --amber-bg: #fdf5e6;
+  --blue:   #1a3a6e;
+  --blue-bg:#eef2fb;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6}
+
+/* HERO */
+.hero{background:var(--ink);padding:3rem 2rem 2.5rem;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-80px;top:-80px;width:300px;height:300px;border-radius:50%;border:1px solid rgba(255,255,255,0.04)}
+.hero::before{content:'';position:absolute;right:40px;bottom:-100px;width:200px;height:200px;border-radius:50%;border:1px solid rgba(255,255,255,0.03)}
+.hero-inner{max-width:700px;margin:0 auto;position:relative;z-index:1}
+.hero-eyebrow{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#555;margin-bottom:.75rem}
+.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,40px);color:var(--white);letter-spacing:-.03em;line-height:1.1;margin-bottom:.75rem}
+.hero h1 em{font-style:italic;color:#666}
+.hero-sub{font-size:13.5px;color:#666;font-weight:300;line-height:1.7;max-width:480px}
+
+/* TIME ESTIMATE */
+.time-row{max-width:700px;margin:0 auto;padding:.9rem 2rem;background:var(--white);border-bottom:1px solid var(--rule);display:flex;gap:2rem;flex-wrap:wrap}
+.time-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink3)}
+.time-item strong{color:var(--ink2);font-weight:500}
+
+/* MAIN */
+.main{max-width:700px;margin:0 auto;padding:2.5rem 2rem 5rem}
+
+/* SECTION */
+.phase{margin-bottom:3.5rem}
+.phase-label{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink4);margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:8px}
+.phase-label-num{font-family:'DM Serif Display',serif;font-size:15px;color:var(--ink3)}
+
+/* STEP */
+.step{display:grid;grid-template-columns:44px 1fr;gap:0 1.25rem;margin-bottom:2.5rem;position:relative}
+.step:not(:last-child) .step-num-col::after{content:'';position:absolute;left:21px;top:40px;width:1px;height:calc(100% - 10px);background:var(--rule)}
+.step-num-col{display:flex;flex-direction:column;align-items:center;padding-top:2px;position:relative}
+.num{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--white);font-family:'DM Serif Display',serif;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1}
+.num.done{background:var(--green)}
+
+.step-content{padding-bottom:0}
+.step-title{font-size:15.5px;font-weight:500;color:var(--ink);letter-spacing:-.02em;padding-top:5px;margin-bottom:.35rem;line-height:1.3}
+.step-desc{font-size:13px;color:var(--ink3);font-weight:300;line-height:1.75;margin-bottom:.9rem}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--rule);border-radius:6px;padding:1rem 1.1rem;margin-bottom:.75rem}
+.card-title{font-size:9.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink4);margin-bottom:.6rem}
+
+/* CODE BLOCK */
+.code{background:var(--ink);border-radius:6px;overflow:hidden;margin:.5rem 0}
+.code-bar{display:flex;align-items:center;justify-content:space-between;padding:.5rem .85rem;border-bottom:1px solid rgba(255,255,255,0.06)}
+.code-lang{font-size:9.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#555}
+.code-copy{font-size:10px;color:#555;cursor:pointer;font-family:'DM Sans',sans-serif;background:none;border:none;letter-spacing:.05em}
+.code-copy:hover{color:#999}
+pre{padding:.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:#ccc;overflow-x:auto;white-space:pre}
+.hl{color:#7dd3b0}   /* green highlight */
+.hl2{color:#f4c678}  /* amber highlight */
+.hl3{color:#88b4f5}  /* blue highlight */
+.cm{color:#444}      /* comment */
+
+/* COMMAND */
+.cmd{display:flex;align-items:center;gap:.6rem;background:var(--ink);border-radius:4px;padding:.65rem 1rem;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#ccc;margin:.4rem 0}
+.cmd-prompt{color:#444;user-select:none}
+
+/* NOTICE */
+.notice{border-radius:0 5px 5px 0;padding:.75rem 1rem;font-size:12.5px;line-height:1.65;font-weight:300;margin:.6rem 0;border-left:2px solid}
+.notice strong{font-weight:500}
+.notice.ok   {background:var(--green-bg);color:var(--green);border-color:var(--green)}
+.notice.warn {background:var(--amber-bg);color:var(--amber);border-color:var(--amber)}
+.notice.info {background:var(--blue-bg);color:var(--blue);border-color:var(--blue)}
+
+/* TAG */
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;letter-spacing:.06em;padding:2px 7px;border-radius:20px;vertical-align:middle}
+.tag.green{background:var(--green-bg);color:var(--green)}
+.tag.amber{background:var(--amber-bg);color:var(--amber)}
+.tag.blue {background:var(--blue-bg);color:var(--blue)}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:.4rem;margin:.5rem 0}
+.check-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--ink2);font-weight:300;line-height:1.6}
+.check-box{width:16px;height:16px;border:1.5px solid var(--rule);border-radius:3px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center}
+.check-box.checked{background:var(--ink);border-color:var(--ink)}
+.check-box.checked::after{content:'';width:8px;height:5px;border-left:1.5px solid white;border-bottom:1.5px solid white;transform:rotate(-45deg) translateY(-1px)}
+
+/* ENV TABLE */
+.env-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:.5rem 0}
+.env-table th{text-align:left;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink4);font-weight:500;padding:.5rem .75rem;border-bottom:1px solid var(--rule);background:var(--paper)}
+.env-table td{padding:.6rem .75rem;border-bottom:1px solid var(--rule);color:var(--ink2);font-weight:300;vertical-align:top;line-height:1.55}
+.env-table td:first-child{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink);font-weight:500;white-space:nowrap}
+.env-table td:last-child{color:var(--ink3);font-size:11.5px}
+.env-table tr:last-child td{border-bottom:none}
+
+/* URL BADGE */
+.url-badge{display:inline-flex;align-items:center;gap:5px;background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:3px 8px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink2)}
+.url-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+/* FOOTER */
+footer{background:var(--ink);padding:1.5rem 2rem;text-align:center}
+footer .logo{font-family:'DM Serif Display',serif;font-size:16px;color:var(--white)}
+footer p{font-size:11px;color:#444;margin-top:.3rem;font-weight:300}
+
+@media(max-width:520px){
+  .main,.hero,.time-row{padding-left:1.25rem;padding-right:1.25rem}
+  .step{grid-template-columns:36px 1fr;gap:0 1rem}
+  .time-row{gap:1rem}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Cardex — デプロイ手順</div>
+    <h1>ZIPから本番公開まで<br><em>完全ガイド</em></h1>
+    <p class="hero-sub">所要時間は約30〜40分。コマンドをコピペするだけで完了します。</p>
+  </div>
+</div>
+
+<div class="time-row">
+  <div class="time-item"><strong>所要時間</strong> 約 30〜40 分</div>
+  <div class="time-item"><strong>難易度</strong> コピペのみ</div>
+  <div class="time-item"><strong>費用</strong> 無料（Vercel / Supabase 無料枠）</div>
+  <div class="time-item"><strong>必要なもの</strong> Googleアカウント・GitHubアカウント</div>
+</div>
+
+<div class="main">
+
+  <!-- ═══ PHASE 0: 準備 ═══ -->
+  <div class="phase">
+    <div class="phase-label"><span class="phase-label-num">0</span> 事前準備</div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">0</div></div>
+      <div class="step-content">
+        <div class="step-title">Node.js をインストール</div>
+        <div class="step-desc">まだインストールしていない場合は <strong>nodejs.org</strong> からLTS版をダウンロードしてインストールしてください。</div>
+        <div class="cmd"><span class="cmd-prompt">$</span> node -v</div>
+        <div class="notice ok">v18 以上が表示されればOKです</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PHASE 1: ZIPを展開 ═══ -->
+  <div class="phase">
+    <div class="phase-label"><span class="phase-label-num">1</span> ZIPを展開してローカルで動かす</div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">1</div></div>
+      <div class="step-content">
+        <div class="step-title">ZIPを展開する</div>
+        <div class="step-desc">ダウンロードした <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">cardex.zip</code> をダブルクリックして展開します。<br>展開すると <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">cardex</code> フォルダが作られます。</div>
+        <div class="card">
+          <div class="card-title">展開後のファイル構成</div>
+          <pre style="background:none;padding:0;color:var(--ink2);font-size:12px">cardex/
+├── app/
+│   ├── page.tsx          <span style="color:var(--ink4)">← メインUI</span>
+│   └── api/
+│       ├── ocr/          <span style="color:var(--ink4)">← OCR + 回数制限</span>
+│       └── auth/         <span style="color:var(--ink4)">← Googleログイン</span>
+├── lib/
+│   ├── supabase.ts       <span style="color:var(--ink4)">← DB操作</span>
+│   └── plans.ts          <span style="color:var(--ink4)">← プラン定義</span>
+├── supabase/
+│   └── schema.sql        <span style="color:var(--ink4)">← テーブル定義</span>
+├── .env.local.example    <span style="color:var(--ink4)">← 環境変数テンプレート</span>
+└── README.md</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">2</div></div>
+      <div class="step-content">
+        <div class="step-title">ターミナルでフォルダを開く</div>
+        <div class="step-desc">ターミナル（Mac: Terminal、Windows: PowerShell）を開き、cardexフォルダに移動します。</div>
+        <div class="cmd"><span class="cmd-prompt">$</span> cd cardex</div>
+        <div class="cmd"><span class="cmd-prompt">$</span> npm install</div>
+        <div class="notice info">パッケージのインストールに1〜2分かかります</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">3</div></div>
+      <div class="step-content">
+        <div class="step-title">環境変数ファイルを作成する</div>
+        <div class="step-desc"><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">.env.local.example</code> をコピーして <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">.env.local</code> を作ります。この中にAPIキーを書いていきます。</div>
+        <div class="cmd"><span class="cmd-prompt">$</span> cp .env.local.example .env.local</div>
+        <div class="notice warn"><strong>注意：</strong> <code style="font-family:'JetBrains Mono',monospace;font-size:11px">.env.local</code> はGitHubに絶対にアップしないでください。APIキーが漏洩します。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PHASE 2: Supabase ═══ -->
+  <div class="phase">
+    <div class="phase-label"><span class="phase-label-num">2</span> Supabase — データベース設定</div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">4</div></div>
+      <div class="step-content">
+        <div class="step-title">Supabase でプロジェクトを作成</div>
+        <div class="step-desc"><strong>supabase.com</strong> にアクセスしてGitHubでログイン。「New project」をクリックしてプロジェクトを作成します。</div>
+        <div class="checklist">
+          <div class="check-item"><div class="check-box"></div>supabase.com にアクセス</div>
+          <div class="check-item"><div class="check-box"></div>「Start your project」→ GitHubでサインアップ</div>
+          <div class="check-item"><div class="check-box"></div>「New project」→ 名前を <code style="font-family:'JetBrains Mono',monospace;font-size:11.5px">cardex</code> に設定</div>
+          <div class="check-item"><div class="check-box"></div>Region を <strong>Northeast Asia (Tokyo)</strong> に設定</div>
+          <div class="check-item"><div class="check-box"></div>パスワードを設定して「Create new project」</div>
+        </div>
+        <div class="notice info">プロジェクトの作成に約1分かかります</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">5</div></div>
+      <div class="step-content">
+        <div class="step-title">テーブルを作成する</div>
+        <div class="step-desc">Supabaseダッシュボードの左メニュー <strong>SQL Editor</strong> を開き、以下のSQLを貼り付けて「RUN」をクリックします。</div>
+        <div class="code">
+          <div class="code-bar"><span class="code-lang">SQL</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+          <pre><span class="cm">-- usersテーブル（ユーザー管理）</span>
+<span class="hl">create table</span> users (
+  id         uuid <span class="hl3">primary key default</span> gen_random_uuid(),
+  email      text <span class="hl3">unique not null</span>,
+  name       text,
+  image      text,
+  plan       text <span class="hl3">not null default</span> <span class="hl2">'free'</span>
+             <span class="hl3">check</span> (plan <span class="hl3">in</span> (<span class="hl2">'free'</span>, <span class="hl2">'starter'</span>, <span class="hl2">'pro'</span>)),
+  created_at timestamptz <span class="hl3">not null default</span> now()
+);
+
+<span class="cm">-- scansテーブル（スキャン回数トラッキング）</span>
+<span class="hl">create table</span> scans (
+  id         uuid <span class="hl3">primary key default</span> gen_random_uuid(),
+  user_id    uuid <span class="hl3">not null references</span> users(id) <span class="hl3">on delete cascade</span>,
+  scanned_at timestamptz <span class="hl3">not null default</span> now()
+);
+
+<span class="cm">-- インデックス（月次集計を高速化）</span>
+<span class="hl">create index</span> scans_user_month <span class="hl3">on</span> scans (user_id, scanned_at);
+
+<span class="cm">-- RLS（外部からの直接アクセスをブロック）</span>
+<span class="hl">alter table</span> users <span class="hl3">enable row level security</span>;
+<span class="hl">alter table</span> scans <span class="hl3">enable row level security</span>;</pre>
+        </div>
+        <div class="notice ok">「Success. No rows returned」と表示されればOKです</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">6</div></div>
+      <div class="step-content">
+        <div class="step-title">APIキーをコピーする</div>
+        <div class="step-desc">左メニュー <strong>Settings → API</strong> を開いて以下の3つをコピーし、<code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">.env.local</code> に貼り付けます。</div>
+        <div class="card">
+          <table class="env-table">
+            <tr><th>コピーする値</th><th>.env.local の変数名</th><th>場所</th></tr>
+            <tr><td>Project URL</td><td>NEXT_PUBLIC_SUPABASE_URL</td><td>Settings → API → Project URL</td></tr>
+            <tr><td>anon public</td><td>NEXT_PUBLIC_SUPABASE_ANON_KEY</td><td>Settings → API → Project API keys</td></tr>
+            <tr><td>service_role secret</td><td>SUPABASE_SERVICE_ROLE_KEY</td><td>同上（Revealして表示）</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PHASE 3: Google OAuth ═══ -->
+  <div class="phase">
+    <div class="phase-label"><span class="phase-label-num">3</span> Google OAuth — ログイン設定</div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">7</div></div>
+      <div class="step-content">
+        <div class="step-title">Google Cloud で OAuth クライアントを作成</div>
+        <div class="step-desc"><strong>console.cloud.google.com</strong> にアクセスして新しいプロジェクトを作成します。</div>
+        <div class="checklist">
+          <div class="check-item"><div class="check-box"></div>console.cloud.google.com にアクセス</div>
+          <div class="check-item"><div class="check-box"></div>上部のプロジェクト選択 → 「新しいプロジェクト」→ 名前: cardex</div>
+          <div class="check-item"><div class="check-box"></div>左メニュー → 「APIとサービス」→「認証情報」</div>
+          <div class="check-item"><div class="check-box"></div>「認証情報を作成」→「OAuthクライアントID」</div>
+          <div class="check-item"><div class="check-box"></div>アプリケーションの種類: <strong>ウェブアプリケーション</strong></div>
+          <div class="check-item"><div class="check-box"></div>承認済みリダイレクトURIに以下を追加：</div>
+        </div>
+        <div class="cmd"><span style="color:#555">http://localhost:3000/api/auth/callback/google</span></div>
+        <div class="notice info">本番URLは後でVercelデプロイ後に追加します</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">8</div></div>
+      <div class="step-content">
+        <div class="step-title">クライアントID・シークレットをコピー</div>
+        <div class="step-desc">作成後に表示されるクライアントIDとシークレットを <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">.env.local</code> に貼り付けます。</div>
+        <div class="card">
+          <table class="env-table">
+            <tr><th>コピーする値</th><th>.env.local の変数名</th></tr>
+            <tr><td>クライアントID</td><td>GOOGLE_CLIENT_ID</td></tr>
+            <tr><td>クライアントシークレット</td><td>GOOGLE_CLIENT_SECRET</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">9</div></div>
+      <div class="step-content">
+        <div class="step-title">NEXTAUTH_SECRET を生成する</div>
+        <div class="step-desc">ターミナルで以下を実行して出力された文字列を <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">NEXTAUTH_SECRET</code> に貼り付けます。</div>
+        <div class="cmd"><span class="cmd-prompt">$</span> openssl rand -base64 32</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PHASE 4: ローカル確認 ═══ -->
+  <div class="phase">
+    <div class="phase-label"><span class="phase-label-num">4</span> ローカルで動作確認</div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">10</div></div>
+      <div class="step-content">
+        <div class="step-title">.env.local の完成形を確認</div>
+        <div class="step-desc">この時点で <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">.env.local</code> は以下のようになっているはずです。</div>
+        <div class="code">
+          <div class="code-bar"><span class="code-lang">.env.local</span></div>
+          <pre><span class="cm"># Anthropic</span>
+<span class="hl">ANTHROPIC_API_KEY</span>=<span class="hl2">sk-ant-xxxxxxxxxxxxxxxx</span>
+
+<span class="cm"># NextAuth</span>
+<span class="hl">NEXTAUTH_URL</span>=<span class="hl2">http://localhost:3000</span>
+<span class="hl">NEXTAUTH_SECRET</span>=<span class="hl2">生成した文字列</span>
+
+<span class="cm"># Google OAuth</span>
+<span class="hl">GOOGLE_CLIENT_ID</span>=<span class="hl2">xxxxxx.apps.googleusercontent.com</span>
+<span class="hl">GOOGLE_CLIENT_SECRET</span>=<span class="hl2">GOCSPX-xxxxxxxxxx</span>
+
+<span class="cm"># Supabase</span>
+<span class="hl">NEXT_PUBLIC_SUPABASE_URL</span>=<span class="hl2">https://xxxxxxxx.supabase.co</span>
+<span class="hl">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>=<span class="hl2">eyJxxxxxx</span>
+<span class="hl">SUPABASE_SERVICE_ROLE_KEY</span>=<span class="hl2">eyJxxxxxx</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">11</div></div>
+      <div class="step-content">
+        <div class="step-title">ローカルで起動する</div>
+        <div class="step-desc">ターミナルで以下を実行し、ブラウザで確認します。</div>
+        <div class="cmd"><span class="cmd-prompt">$</span> npm run dev</div>
+        <div style="margin-top:.5rem">
+          <span class="url-badge"><span class="url-dot"></span>http://localhost:3000</span>
+        </div>
+        <div class="notice ok">Googleログインが表示され、名刺をスキャンできればOKです</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PHASE 5: GitHub ═══ -->
+  <div class="phase">
+    <div class="phase-label"><span class="phase-label-num">5</span> GitHub にプッシュ</div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">12</div></div>
+      <div class="step-content">
+        <div class="step-title">.gitignore を確認して GitHub にプッシュ</div>
+        <div class="step-desc"><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">.env.local</code> がGitHubにアップされないよう、まず <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">.gitignore</code> を作ってからプッシュします。</div>
+        <div class="code">
+          <div class="code-bar"><span class="code-lang">terminal</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+          <pre><span class="cm"># .gitignoreを作成</span>
+<span class="hl">echo</span> <span class="hl2">".env.local\nnode_modules/\n.next/"</span> > .gitignore
+
+<span class="cm"># GitHubにプッシュ</span>
+<span class="hl">git</span> init
+<span class="hl">git</span> add .
+<span class="hl">git</span> commit -m <span class="hl2">"initial commit"</span>
+<span class="hl">git</span> remote add origin https://github.com/<span class="hl3">あなたのユーザー名</span>/cardex.git
+<span class="hl">git</span> push -u origin main</pre>
+        </div>
+        <div class="notice warn"><strong>必ず確認：</strong> GitHubのリポジトリに <code style="font-family:'JetBrains Mono',monospace;font-size:11px">.env.local</code> が含まれていないことを確認してください</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PHASE 6: Vercel ═══ -->
+  <div class="phase">
+    <div class="phase-label"><span class="phase-label-num">6</span> Vercel にデプロイ</div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">13</div></div>
+      <div class="step-content">
+        <div class="step-title">Vercel でプロジェクトをインポート</div>
+        <div class="step-desc"><strong>vercel.com</strong> にアクセスして GitHubでログイン。「Add New Project」からリポジトリを選択します。</div>
+        <div class="checklist">
+          <div class="check-item"><div class="check-box"></div>vercel.com にアクセス → GitHubでログイン</div>
+          <div class="check-item"><div class="check-box"></div>「Add New」→「Project」→ cardexリポジトリを選択</div>
+          <div class="check-item"><div class="check-box"></div>Framework Preset: <strong>Next.js</strong> を確認</div>
+          <div class="check-item"><div class="check-box"></div>「Environment Variables」セクションを開く</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num">14</div></div>
+      <div class="step-content">
+        <div class="step-title">環境変数をVercelに設定する</div>
+        <div class="step-desc"><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">.env.local</code> の内容を全てVercelの環境変数に追加します。<code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--white);border:1px solid var(--rule);padding:1px 5px;border-radius:2px">NEXTAUTH_URL</code> だけは本番URLに変更します。</div>
+        <div class="card">
+          <table class="env-table">
+            <tr><th>変数名</th><th>本番での値</th></tr>
+            <tr><td>NEXTAUTH_URL</td><td>https://cardex.vercel.app（デプロイ後に確認）</td></tr>
+            <tr><td>その他全て</td><td>.env.local と同じ値</td></tr>
+          </table>
+        </div>
+        <div class="notice info">全て追加したら「Deploy」ボタンをクリック</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num done">15</div></div>
+      <div class="step-content">
+        <div class="step-title">本番URLをGoogle OAuthに追加</div>
+        <div class="step-desc">デプロイ完了後に発行された本番URLを Google Cloud Console の承認済みリダイレクトURIに追加します。</div>
+        <div class="cmd"><span style="color:#555">https://cardex.vercel.app/api/auth/callback/google</span></div>
+        <div class="notice ok" style="margin-top:.75rem">これで完了です。本番URLをブラウザで開いてGoogleログインが動けば成功です。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AFTER: プラン変更 ═══ -->
+  <div class="phase">
+    <div class="phase-label"><span class="phase-label-num">+</span> 身内に渡す前に — プランを手動設定</div>
+
+    <div class="step">
+      <div class="step-num-col"><div class="num" style="background:var(--ink3)">+</div></div>
+      <div class="step-content">
+        <div class="step-title">特定ユーザーのプランを変更する</div>
+        <div class="step-desc">初期は全員 <span class="tag green">Free（月10枚）</span> です。身内に渡す場合は Supabase の SQL Editor で変更できます。</div>
+        <div class="code">
+          <div class="code-bar"><span class="code-lang">SQL</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+          <pre><span class="cm">-- starterプランに変更（月100枚）</span>
+<span class="hl">update</span> users
+<span class="hl3">set</span> plan = <span class="hl2">'starter'</span>
+<span class="hl3">where</span> email = <span class="hl2">'friend@example.com'</span>;
+
+<span class="cm">-- 現在のユーザー一覧を確認</span>
+<span class="hl">select</span> email, plan, created_at <span class="hl3">from</span> users <span class="hl3">order by</span> created_at <span class="hl3">desc</span>;</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<footer>
+  <div class="logo">Cardex</div>
+  <p>名刺スキャン · Sheets管理 · Gmail下書き自動作成</p>
+</footer>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code').querySelector('pre')
+  const text = pre.innerText
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copied'
+    setTimeout(() => btn.textContent = 'copy', 2000)
+  })
+}
+</script>
+
+</body>
+</html>
